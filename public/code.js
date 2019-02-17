@@ -8,6 +8,8 @@ class Player {
         this.id = id;
         this.x = x;
         this.y = y;
+        this.d = 20;
+        this.r = this.d / 2;
         this.dx = 0;
         this.dy = 0;
     }
@@ -20,12 +22,9 @@ class Player {
     move() {
         this.x += this.dx;
         this.y += this.dy;
-    }
-
-    draw() {
-        push();
-        ellipse(this.x, this.y, 20);
-        pop();
+        
+        this.x = constrain(this.x, 0 + this.r, width - this.r);
+        this.y = constrain(this.y, 0 + this.r, height - this.r);
     }
 }
 
@@ -70,7 +69,7 @@ socket.on('beat', playersFromServer => {
 });
 
 function setup() {
-    createCanvas(600, 600);
+    createCanvas(innerWidth, innerHeight);
     frameRate(30);
     player = new Player(socket.id, random() * width, random() * height);
     const { x, y } = player;
@@ -80,10 +79,11 @@ function setup() {
 function draw() {
     background(100);
 
+
     for (let id in players) {
-        const player = players[id];
+        const playerFromServer = players[id];
         push();
-        ellipse(player.x, player.y, 20);
+        ellipse(playerFromServer.x, playerFromServer.y, player.d);
         pop();
     }
     
