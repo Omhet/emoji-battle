@@ -13,9 +13,10 @@ function listen() {
 const io = require('socket.io')(server);
 
 class Player {
-    constructor(x, y) {
+    constructor(x, y, color) {
         this.x = x;
         this.y = y;
+        this.color = color;
     }
 }
 
@@ -34,8 +35,20 @@ io.sockets.on('connection', socket => {
 
     socket.on('start', data => {
         console.log('start', data);
-        const player = new Player(data.x, data.y);
+
+        let color = getRandomColor();
+
+        for (const id in players) {
+            const player = players[id];
+            if (color === player.color) {
+                color = getRandomColor();
+            }
+        }
+
+        const player = new Player(data.x, data.y, color);
         players[socket.id] = player;
+
+
         console.log(players);
     });
 
@@ -52,3 +65,8 @@ io.sockets.on('connection', socket => {
         delete players[socket.id];
     });
 });
+
+
+function getRandomColor() {
+    return "#" + Math.random().toString(16).slice(2, 8);
+} 

@@ -80,10 +80,11 @@ function draw() {
     background(100);
 
 
-    for (let id in players) {
-        const playerFromServer = players[id];
+    for (const id in players) {
+        const { x, y, color } = players[id];
         push();
-        ellipse(playerFromServer.x, playerFromServer.y, player.d);
+        fill(color);
+        ellipse(x, y, player.d);
         pop();
     }
     
