@@ -45,6 +45,10 @@ io.sockets.on('connection', socket => {
             player.x = data.x;
             player.y = data.y;
         }
+    });
 
+    socket.on('disconnect', () => {
+        console.log('Client ' + socket.id + ' disconnected');
+        delete players[socket.id];
     });
 });
