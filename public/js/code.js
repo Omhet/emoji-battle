@@ -7,6 +7,8 @@ let bullets = [];
 const maxSpeed = 3;
 
 
+
+// SOCKETS
 socket.on('beat', data => {
     players = data;
 });
@@ -17,6 +19,9 @@ socket.on('new-bullet', newBullet => {
     bullets.push(bullet);
 });
 
+
+
+// SETUP
 function setup() {
     createCanvas(W, H);
     frameRate(30);
@@ -25,10 +30,13 @@ function setup() {
     socket.emit('start', { x, y });
 }
 
+
+
+// UPDATE
 function draw() {
     background(100);
 
-
+    
     // Players update
     for (const id in players) {
         const { x, y, color } = players[id];
@@ -41,6 +49,7 @@ function draw() {
         ellipse(x, y, player.d);
         pop();
     }
+
 
     // Bullets update
     bullets.forEach(b => {
@@ -57,33 +66,6 @@ function draw() {
     socket.emit('update', { x, y });
 }
 
-
-
-
-class Player {
-    constructor(id, x, y) {
-        this.id = id;
-        this.x = x;
-        this.y = y;
-        this.d = 20;
-        this.r = this.d / 2;
-        this.dx = 0;
-        this.dy = 0;
-    }
-
-    setSpeed(dx, dy) {
-        this.dx = dx;
-        this.dy = dy;
-    }
-
-    move() {
-        this.x += this.dx;
-        this.y += this.dy;
-
-        this.x = constrain(this.x, 0 + this.r, width - this.r);
-        this.y = constrain(this.y, 0 + this.r, height - this.r);
-    }
-}
 
 function keyPressed() {
     switch (key) {
@@ -121,39 +103,6 @@ function keyReleased() {
     }
 }
 
-class Bullet {
-    constructor(x, y, dx, dy, color) {
-        this.x = x;
-        this.y = y;
-        this.dx = dx;
-        this.dy = dy;
-        this.d = 10;
-        this.r = this.d / 2;
-        this.color = color;
-        this.alive = true;
-    }
-
-    update() {
-        this.move();
-
-        if (this.x < 0 || this.x > W || this.y < 0 || this.y > H) {
-            this.alive = false;
-        }
-    }
-
-    move() {
-        this.x += this.dx;
-        this.y += this.dy;
-    }
-
-    draw() {
-        push();
-        fill(this.color);
-        ellipse(this.x, this.y, this.d);
-        pop();
-    }
-}
-
 
 function mouseClicked() {
     const { x, y } = player;
@@ -166,14 +115,4 @@ function mouseClicked() {
     dy /= len
 
     socket.emit('shoot', { x, y, dx, dy });
-}
-
-
-function isCollide(a, b) {
-    return !(
-        ((a.y + a.d) < (b.y)) ||
-        (a.y > (b.y + b.d)) ||
-        ((a.x + a.d) < b.x) ||
-        (a.x > (b.x + b.d))
-    );
 }
