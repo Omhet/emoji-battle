@@ -73,7 +73,7 @@ io.sockets.on('connection', socket => {
 
     socket.on('shoot', data => {
         const bullet = new Bullet(data.x, data.y, data.dx, data.dy, players[socket.id].color);
-        socket.emit('new-bullet', bullet);
+        io.sockets.emit('new-bullet', bullet);
     });
 
     socket.on('disconnect', () => {
