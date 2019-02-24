@@ -106,13 +106,11 @@ function keyReleased() {
 
 function mouseClicked() {
     const { x, y } = player;
-
     let dx = mouseX - x;
     let dy = mouseY - y;
 
-    let len = Math.sqrt(dx * dx, dy * dy);
-    dx /= len
-    dy /= len
+    const vel = createVector(dx, dy);
+    vel.normalize();
 
-    socket.emit('shoot', { x, y, dx, dy });
+    socket.emit('shoot', { x, y, dx: vel.x, dy: vel.y });
 }

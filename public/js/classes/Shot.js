@@ -6,6 +6,7 @@ class Shot {
         this.dy = dy;
         this.d = 10;
         this.r = this.d / 2;
+        this.speed = 6;
         this.color = color;
         this.alive = true;
     }
@@ -19,8 +20,8 @@ class Shot {
     }
 
     move() {
-        this.x += this.dx;
-        this.y += this.dy;
+        this.x += this.dx * this.speed;
+        this.y += this.dy * this.speed;
     }
 
     draw() {
