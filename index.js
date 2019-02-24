@@ -16,6 +16,17 @@ class Player {
     constructor(x, y, color) {
         this.x = x;
         this.y = y;
+        this.d = 20;
+        this.color = color;
+    }
+}
+
+class Bullet {
+    constructor(x, y, dx, dy, color) {
+        this.x = x;
+        this.y = y;
+        this.dx = dx;
+        this.dy = dy;
         this.color = color;
     }
 }
@@ -58,6 +69,11 @@ io.sockets.on('connection', socket => {
             player.x = data.x;
             player.y = data.y;
         }
+    });
+
+    socket.on('shoot', data => {
+        const bullet = new Bullet(data.x, data.y, data.dx, data.dy, players[socket.id].color);
+        socket.emit('new-bullet', bullet);
     });
 
     socket.on('disconnect', () => {
