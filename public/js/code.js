@@ -3,7 +3,7 @@ const W = 600;
 const H = 600;
 let player;
 let players = {};
-let bullets = [];
+let shots = [];
 const maxSpeed = 3;
 
 
@@ -13,10 +13,10 @@ socket.on('beat', data => {
     players = data;
 });
 
-socket.on('new-bullet', newBullet => {
-    const { x, y, dx, dy, color } = newBullet;
-    const bullet = new Bullet(x, y, dx, dy, color);
-    bullets.push(bullet);
+socket.on('new-shot', newShot => {
+    const { x, y, dx, dy, color } = newShot;
+    const shot = new Shot(x, y, dx, dy, color);
+    shots.push(shot);
 });
 
 
@@ -36,7 +36,7 @@ function setup() {
 function draw() {
     background(100);
 
-    
+
     // Players update
     for (const id in players) {
         const { x, y, color } = players[id];
@@ -52,12 +52,12 @@ function draw() {
 
 
     // Bullets update
-    bullets.forEach(b => {
-        b.update();
-        b.draw();
+    shots.forEach(s => {
+        s.update();
+        s.draw();
     });
 
-    bullets = bullets.filter(b => b.alive);
+    shots = shots.filter(s => s.alive);
 
 
     // Local player 

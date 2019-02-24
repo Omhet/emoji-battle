@@ -21,7 +21,7 @@ class Player {
     }
 }
 
-class Bullet {
+class Shot {
     constructor(x, y, dx, dy, color) {
         this.x = x;
         this.y = y;
@@ -72,8 +72,8 @@ io.sockets.on('connection', socket => {
     });
 
     socket.on('shoot', data => {
-        const bullet = new Bullet(data.x, data.y, data.dx, data.dy, players[socket.id].color);
-        io.sockets.emit('new-bullet', bullet);
+        const shot = new Shot(data.x, data.y, data.dx, data.dy, players[socket.id].color);
+        io.sockets.emit('new-shot', shot);
     });
 
     socket.on('disconnect', () => {
