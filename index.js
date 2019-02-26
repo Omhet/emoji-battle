@@ -13,9 +13,10 @@ function listen() {
 const io = require('socket.io')(server);
 
 class Player {
-    constructor(x, y, color) {
+    constructor(x, y, hp, color) {
         this.x = x;
         this.y = y;
+        this.hp = hp;
         this.d = 20;
         this.color = color;
     }
@@ -56,7 +57,7 @@ io.sockets.on('connection', socket => {
             }
         }
 
-        const player = new Player(data.x, data.y, color);
+        const player = new Player(data.x, data.y, data.hp, color);
         players[socket.id] = player;
 
 
@@ -68,12 +69,21 @@ io.sockets.on('connection', socket => {
         if (player) {
             player.x = data.x;
             player.y = data.y;
+            player.hp = data.hp;
+
+            if (data.hp <= 0) {
+                delete players[socket.id];
+            }
         }
     });
 
     socket.on('shoot', data => {
         const shot = new Shot(data.x, data.y, data.dx, data.dy, players[socket.id].color);
         io.sockets.emit('new-shot', shot);
+    });
+
+    socket.on('got-shot', i => {
+        io.sockets.emit('delete-shot', i);
     });
 
     socket.on('disconnect', () => {

@@ -19,6 +19,12 @@ socket.on('new-shot', newShot => {
     shots.push(shot);
 });
 
+socket.on('delete-shot', i => {
+    if (shots[i] && shots[i].alive) {
+        shots[i].alive = false;
+    }
+});
+
 
 
 // SETUP
@@ -26,8 +32,8 @@ function setup() {
     createCanvas(W, H);
     frameRate(30);
     player = new Player(socket.id, random() * width, random() * height);
-    const { x, y } = player;
-    socket.emit('start', { x, y });
+    const { x, y, hp } = player;
+    socket.emit('start', { x, y, hp });
 }
 
 
@@ -40,10 +46,6 @@ function draw() {
     // Players update
     for (const id in players) {
         const { x, y, color } = players[id];
-        // if (id !== socket.id) {
-        //     if (isCollide(players[id], player)) {
-        //     }
-        // }
         push();
         fill(color);
         ellipse(x, y, player.d);
@@ -61,9 +63,17 @@ function draw() {
 
 
     // Local player 
+    shots.forEach((s, i) => {
+        if (isCollide(s, player) && s.color !== players[socket.id].color && s.alive) {
+            console.log('boom');
+            socket.emit('got-shot', i);
+            player.hp--;
+        }
+    });
+
     player.move();
-    const { x, y } = player;
-    socket.emit('update', { x, y });
+    const { x, y, hp } = player;
+    socket.emit('update', { x, y, hp });
 }
 
 
