@@ -5,94 +5,109 @@ const server = app.listen(process.env.PORT || 3000, listen);
 app.use(express.static('public'));
 
 function listen() {
-    const host = server.address().address;
-    const port = server.address().port;
-    console.log('Example app listening at http://' + host + ':' + port);
+  const host = server.address().address;
+  const port = server.address().port;
+  console.log('Example app listening at http://' + host + ':' + port);
 }
 
 const io = require('socket.io')(server);
 
+const maxImage = 4;
+
 class Player {
-    constructor(x, y, hp, color) {
-        this.x = x;
-        this.y = y;
-        this.hp = hp;
-        this.d = 20;
-        this.color = color;
-    }
+  constructor(x, y, hp, color, img) {
+    this.x = x;
+    this.y = y;
+    this.hp = hp;
+    this.d = 20;
+    this.color = color;
+    this.img = img;
+  }
 }
 
 class Shot {
-    constructor(x, y, dx, dy, color) {
-        this.x = x;
-        this.y = y;
-        this.dx = dx;
-        this.dy = dy;
-        this.color = color;
-    }
+  constructor(x, y, dx, dy, color) {
+    this.x = x;
+    this.y = y;
+    this.dx = dx;
+    this.dy = dy;
+    this.color = color;
+  }
 }
 
 const players = {};
 
 setInterval(beat, 33);
 
-
 function beat() {
-    io.sockets.emit('beat', players);
+  io.sockets.emit('beat', players);
 }
 
-
 io.sockets.on('connection', socket => {
-    console.log('New client ' + socket.id);
+  console.log('New client ' + socket.id);
 
-    socket.on('start', data => {
-        console.log('start', data);
+  socket.on('start', data => {
+    console.log('start', data);
 
-        let color = getRandomColor();
+    let color = getRandomColor();
+    let img = getRandomImage();
 
-        for (const id in players) {
-            const player = players[id];
-            if (color === player.color) {
-                color = getRandomColor();
-            }
-        }
+    for (const id in players) {
+      const player = players[id];
+      if (color === player.color) {
+        color = getRandomColor();
+      }
+    }
 
-        const player = new Player(data.x, data.y, data.hp, color);
-        players[socket.id] = player;
+    const player = new Player(data.x, data.y, data.hp, color, img);
+    players[socket.id] = player;
 
+    console.log(players);
+  });
 
-        console.log(players);
-    });
+  socket.on('update', data => {
+    const player = players[socket.id];
+    if (player) {
+      player.x = data.x;
+      player.y = data.y;
+      player.hp = data.hp;
 
-    socket.on('update', data => {
-        const player = players[socket.id];
-        if (player) {
-            player.x = data.x;
-            player.y = data.y;
-            player.hp = data.hp;
-
-            if (data.hp <= 0) {
-                delete players[socket.id];
-            }
-        }
-    });
-
-    socket.on('shoot', data => {
-        const shot = new Shot(data.x, data.y, data.dx, data.dy, players[socket.id].color);
-        io.sockets.emit('new-shot', shot);
-    });
-
-    socket.on('got-shot', i => {
-        io.sockets.emit('delete-shot', i);
-    });
-
-    socket.on('disconnect', () => {
-        console.log('Client ' + socket.id + ' disconnected');
+      if (data.hp <= 0) {
         delete players[socket.id];
-    });
+      }
+    }
+  });
+
+  socket.on('shoot', data => {
+    const shot = new Shot(
+      data.x,
+      data.y,
+      data.dx,
+      data.dy,
+      players[socket.id].color
+    );
+    io.sockets.emit('new-shot', shot);
+  });
+
+  socket.on('got-shot', i => {
+    io.sockets.emit('delete-shot', i);
+  });
+
+  socket.on('disconnect', () => {
+    console.log('Client ' + socket.id + ' disconnected');
+    delete players[socket.id];
+  });
 });
 
-
 function getRandomColor() {
-    return "#" + Math.random().toString(16).slice(2, 8);
-} 
+  return (
+    '#' +
+    Math.random()
+      .toString(16)
+      .slice(2, 8)
+  );
+}
+
+function getRandomImage() {
+  return Math.floor(Math.random() * maxImage);
+}
