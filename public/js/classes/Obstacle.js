@@ -3,14 +3,23 @@ class Obstacle {
     this.type = type;
     this.x = x;
     this.y = y;
-    this.d = 40;
-    // this.sprite = createSprite(this.x, this.y, this.d, this.d);
+    this.d = 80;
+    this.r = this.d / 2;
+    this.sprite = createSprite(
+      this.x + this.r,
+      this.y + this.r,
+      this.d,
+      this.d
+    );
   }
 
   draw() {
     push();
-    rect(this.x, this.y, this.d, this.d);
-    // drawSprite(this.sprite);
+    // rect(this.x, this.y, this.d, this.d);
+    this.x = this.sprite.position.x - this.r;
+    this.y = this.sprite.position.y - this.r;
+
+    drawSprite(this.sprite);
     pop();
   }
 }

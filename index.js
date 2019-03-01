@@ -14,16 +14,16 @@ const io = require('socket.io')(server);
 
 // Game
 const maxImage = 4;
-const W = 800;
-const H = 800;
-const size = 40;
+const W = 1600;
+const H = 1600;
+const size = 80;
 const cols = W / size;
 const rows = H / size;
 const players = {};
 
 const map = createMap();
 
-setInterval(beat, 33);
+setInterval(beat, 25);
 
 function beat() {
   io.sockets.emit('beat', players);
@@ -128,7 +128,7 @@ function createMap() {
 
   for (let x = 0; x < W; x += size) {
     for (let y = 0; y < H; y += size) {
-      const isEmpty = Math.floor(Math.random() * 10);
+      const isEmpty = Math.floor(Math.random() * 5);
       const type = Math.floor(Math.random() * 2);
       if (isEmpty === 0 && type !== 0) {
         map.push({ x, y, type });

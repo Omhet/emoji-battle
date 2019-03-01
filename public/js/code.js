@@ -1,10 +1,11 @@
 const socket = io();
 const W = 800;
 const H = 800;
-const size = 40;
+const size = 80;
 const cols = W / size;
 const rows = H / size;
 let map = [];
+let mapGroup;
 let player;
 let players = {};
 const playerImages = [];
@@ -50,6 +51,12 @@ function setup() {
   frameRate(30);
   imageMode(CENTER);
 
+  mapGroup = new Group();
+
+  map.forEach(obs => {
+    mapGroup.add(obs.sprite);
+  });
+
   player = new Player(socket.id, random() * width, random() * height);
   const { x, y, hp } = player;
   socket.emit('start', { x, y, hp });
@@ -64,9 +71,11 @@ function draw() {
 
   // Map
   map.forEach(obs => {
-    // player.sprite.collide(obs.sprite);
     obs.draw();
   });
+
+  // mapGroup.displace(mapGroup);
+  player.sprite.collide(mapGroup);
 
   // Bullets update
   shots.forEach(s => {
@@ -79,13 +88,23 @@ function draw() {
   // Players update
   for (const id in players) {
     const { x, y, img } = players[id];
+    // if (id !== socket.id) {
     push();
     image(playerImages[img], x, y);
     pop();
+    // }
   }
 
   // Local player
   shots.forEach((s, i) => {
+    map.forEach(obs => {
+      if (overlap(obs, s)) {
+        console.log('bam');
+        s.alive = false;
+        socket.emit('got-shot', i);
+      }
+    });
+
     if (overlap(s, player) && s.color !== players[socket.id].color && s.alive) {
       console.log('boom');
       socket.emit('got-shot', i);
@@ -93,13 +112,11 @@ function draw() {
     }
   });
 
-  // drawSprite(player.sprite);
+  drawSprite(player.sprite);
 
   player.move();
   const { x, y, hp } = player;
   socket.emit('update', { x, y, hp });
-
-  // drawSprites();
 }
 
 function keyPressed() {

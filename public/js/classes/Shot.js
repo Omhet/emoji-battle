@@ -14,7 +14,7 @@ class Shot {
   update() {
     this.move();
 
-    if (this.x < 0 || this.x > W || this.y < 0 || this.y > H) {
+    if (this.x < 0 || this.x > 1600 || this.y < 0 || this.y > 1600) {
       this.alive = false;
     }
   }
@@ -25,6 +25,9 @@ class Shot {
   }
 
   draw() {
+    if (!this.alive) {
+      return;
+    }
     push();
     fill(this.color);
     ellipse(this.x, this.y, this.d);
