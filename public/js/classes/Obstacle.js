@@ -11,6 +11,7 @@ class Obstacle {
       this.d,
       this.d
     );
+    this.sprite.shapeColor = 'white';
   }
 
   draw() {
