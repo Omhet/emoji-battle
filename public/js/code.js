@@ -1,16 +1,28 @@
 const socket = io();
-const W = 600;
-const H = 600;
+const W = 800;
+const H = 800;
+const size = 40;
+const cols = W / size;
+const rows = H / size;
+let map = [];
 let player;
 let players = {};
 const playerImages = [];
 let shots = [];
-const maxSpeed = 3;
+const maxSpeed = 4;
 const maxImage = 4;
 
 // SOCKETS
 socket.on('beat', data => {
   players = data;
+});
+
+socket.on('create-map', newMap => {
+  console.log(newMap);
+  newMap.forEach(({ x, y, type }) => {
+    const obs = new Obstacle(type, x, y);
+    map.push(obs);
+  });
 });
 
 socket.on('new-shot', newShot => {
@@ -47,6 +59,15 @@ function setup() {
 function draw() {
   background(100);
 
+  camera.position.x = player.x;
+  camera.position.y = player.y;
+
+  // Map
+  map.forEach(obs => {
+    // player.sprite.collide(obs.sprite);
+    obs.draw();
+  });
+
   // Bullets update
   shots.forEach(s => {
     s.update();
@@ -57,31 +78,28 @@ function draw() {
 
   // Players update
   for (const id in players) {
-    const { x, y, color, img } = players[id];
+    const { x, y, img } = players[id];
     push();
-    // fill(color);
-    // ellipse(x, y, player.d);
-
     image(playerImages[img], x, y);
     pop();
   }
 
   // Local player
   shots.forEach((s, i) => {
-    if (
-      isCollide(s, player) &&
-      s.color !== players[socket.id].color &&
-      s.alive
-    ) {
+    if (overlap(s, player) && s.color !== players[socket.id].color && s.alive) {
       console.log('boom');
       socket.emit('got-shot', i);
       player.hp--;
     }
   });
 
+  // drawSprite(player.sprite);
+
   player.move();
   const { x, y, hp } = player;
   socket.emit('update', { x, y, hp });
+
+  // drawSprites();
 }
 
 function keyPressed() {
@@ -121,9 +139,9 @@ function keyReleased() {
 }
 
 function mouseClicked() {
-  const { x, y } = player;
-  let dx = mouseX - x;
-  let dy = mouseY - y;
+  const { x, y } = camera.position;
+  let dx = camera.mouseX - x;
+  let dy = camera.mouseY - y;
 
   const vel = createVector(dx, dy);
   vel.normalize();

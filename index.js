@@ -12,30 +12,16 @@ function listen() {
 
 const io = require('socket.io')(server);
 
+// Game
 const maxImage = 4;
-
-class Player {
-  constructor(x, y, hp, color, img) {
-    this.x = x;
-    this.y = y;
-    this.hp = hp;
-    this.d = 20;
-    this.color = color;
-    this.img = img;
-  }
-}
-
-class Shot {
-  constructor(x, y, dx, dy, color) {
-    this.x = x;
-    this.y = y;
-    this.dx = dx;
-    this.dy = dy;
-    this.color = color;
-  }
-}
-
+const W = 800;
+const H = 800;
+const size = 40;
+const cols = W / size;
+const rows = H / size;
 const players = {};
+
+const map = createMap();
 
 setInterval(beat, 33);
 
@@ -44,6 +30,8 @@ function beat() {
 }
 
 io.sockets.on('connection', socket => {
+  io.sockets.emit('create-map', map);
+
   console.log('New client ' + socket.id);
 
   socket.on('start', data => {
@@ -79,14 +67,16 @@ io.sockets.on('connection', socket => {
   });
 
   socket.on('shoot', data => {
-    const shot = new Shot(
-      data.x,
-      data.y,
-      data.dx,
-      data.dy,
-      players[socket.id].color
-    );
-    io.sockets.emit('new-shot', shot);
+    if (players[socket.id]) {
+      const shot = new Shot(
+        data.x,
+        data.y,
+        data.dx,
+        data.dy,
+        players[socket.id].color
+      );
+      io.sockets.emit('new-shot', shot);
+    }
   });
 
   socket.on('got-shot', i => {
@@ -99,6 +89,27 @@ io.sockets.on('connection', socket => {
   });
 });
 
+class Player {
+  constructor(x, y, hp, color, img) {
+    this.x = x;
+    this.y = y;
+    this.hp = hp;
+    this.d = 20;
+    this.color = color;
+    this.img = img;
+  }
+}
+
+class Shot {
+  constructor(x, y, dx, dy, color) {
+    this.x = x;
+    this.y = y;
+    this.dx = dx;
+    this.dy = dy;
+    this.color = color;
+  }
+}
+
 function getRandomColor() {
   return (
     '#' +
@@ -110,4 +121,20 @@ function getRandomColor() {
 
 function getRandomImage() {
   return Math.floor(Math.random() * maxImage);
+}
+
+function createMap() {
+  const map = [];
+
+  for (let x = 0; x < W; x += size) {
+    for (let y = 0; y < H; y += size) {
+      const isEmpty = Math.floor(Math.random() * 10);
+      const type = Math.floor(Math.random() * 2);
+      if (isEmpty === 0 && type !== 0) {
+        map.push({ x, y, type });
+      }
+    }
+  }
+
+  return map;
 }
