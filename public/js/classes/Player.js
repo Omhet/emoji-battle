@@ -18,15 +18,6 @@ class Player {
   }
 
   move() {
-    // this.x += this.dx;
-    // this.y += this.dy;
-
-    // this.x = constrain(this.x, 0 + this.r, 1600 - this.r);
-    // this.y = constrain(this.y, 0 + this.r, 1600 - this.r);
-
-    // this.sprite.position.x = this.x;
-    // this.sprite.position.y = this.y;
-
     this.sprite.position.x += this.dx;
     this.sprite.position.y += this.dy;
 

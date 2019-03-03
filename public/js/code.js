@@ -66,9 +66,6 @@ function setup() {
 function draw() {
   background(100);
 
-  camera.position.x = player.x;
-  camera.position.y = player.y;
-
   // Map
   map.forEach(obs => {
     obs.draw();
@@ -117,6 +114,14 @@ function draw() {
   player.move();
   const { x, y, hp } = player;
   socket.emit('update', { x, y, hp });
+
+  camera.position.x = player.x;
+  camera.position.y = player.y;
+
+  if (camera.position.x < 400) camera.position.x = 400;
+  if (camera.position.y < 400) camera.position.y = 400;
+  if (camera.position.x > 1280) camera.position.x = 1280;
+  if (camera.position.y > 1280) camera.position.y = 1280;
 }
 
 function keyPressed() {
@@ -156,7 +161,20 @@ function keyReleased() {
 }
 
 function mouseClicked() {
-  const { x, y } = camera.position;
+  let x, y;
+  if (
+    camera.position.x === 400 ||
+    camera.position.x === 1280 ||
+    camera.position.y === 400 ||
+    camera.position.y === 1280
+  ) {
+    x = player.x;
+    y = player.y;
+  } else {
+    x = camera.position.x;
+    y = camera.position.y;
+  }
+
   let dx = camera.mouseX - x;
   let dy = camera.mouseY - y;
 
