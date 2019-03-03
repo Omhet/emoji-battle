@@ -127,7 +127,20 @@ function createMap() {
   const map = [];
 
   for (let x = 0; x < W; x += size) {
-    for (let y = 0; y < H; y += size) {
+    map.push({ x, y: 0, type: 1 });
+  }
+  for (let x = 0; x < W; x += size) {
+    map.push({ x, y: H, type: 1 });
+  }
+  for (let y = 1; y < H; y += size) {
+    map.push({ x: 0, y, type: 1 });
+  }
+  for (let y = 1; y < H; y += size) {
+    map.push({ x: W, y, type: 1 });
+  }
+
+  for (let x = 1; x < W - 1; x += size) {
+    for (let y = 1; y < H - 1; y += size) {
       const isEmpty = Math.floor(Math.random() * 5);
       const type = Math.floor(Math.random() * 2);
       if (isEmpty === 0 && type !== 0) {
